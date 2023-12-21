@@ -1,0 +1,7 @@
+= Kaocha plugin `test-ns-hook`
+:sectnums:
+
+* Kaocha plugin `test-ns-hook` for clojure.test `test-ns-hook`
+
+
+
