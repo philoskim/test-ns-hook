@@ -10,6 +10,6 @@
  :kaocha/cli-options {:config-file "tests.edn", :print-config true},
  :kaocha.plugin.randomize/randomize? false,
  :kaocha/plugins [:kaocha.plugin/filter
-                  :kaocha.plugin/test-ns-hook],
+                  :philoskim.kaocha.plugin/test-ns-hook],
  :kaocha.plugin.capture-output/capture-output? false,
  :kaocha/reporter [kaocha.report/dots]}

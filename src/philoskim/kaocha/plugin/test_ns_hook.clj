@@ -1,4 +1,4 @@
-(ns kaocha.plugin.test-ns-hook
+(ns philoskim.kaocha.plugin.test-ns-hook
   (:require [kaocha.plugin :as plugin]))
 
 (use 'debux.core)
@@ -43,11 +43,9 @@
           (fn [test-suites]
             (map update-test-suite test-suites) )))
 
-(defmethod plugin/-register :kaocha.plugin/test-ns-hook
-  [_name plugins]
-  (conj plugins
-        {:kaocha.hooks/pre-run
-         (fn [config]
-           (update config :kaocha.test-plan/tests
+
+(plugin/defplugin :philoskim.kaocha.plugin/test-ns-hook
+  (pre-run [config]
+    (update config :kaocha.test-plan/tests
                    (fn [test-ids]
-                     (map update-test-id test-ids) )))}))
+                     (map update-test-id test-ids) ))))

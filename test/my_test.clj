@@ -1,7 +1,5 @@
-(ns plugin.core-test
+(ns my-test
   (:require [clojure.test :refer :all]))
-
-(use 'debux.core)
 
 (defn my-test-fixture [f]
   (print "start fixture")
