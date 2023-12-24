@@ -76,7 +76,7 @@ To include this plugin for Kaocha in your project, simply add the following to y
 $ lein unit-test
 [(.F..)]
 
-FAIL in my-test/test-ns-str (my_test.clj:15)
+FAIL in my-test/test-ns-hook (my_test.clj:8)
 test-a
 Expected:
   4
@@ -85,4 +85,10 @@ Actual:
 1 tests, 4 assertions, 1 failures.
 ----
 
+
+== License
+
+Copyright © 2023 Young Tae Kim
+
+Distributed under the Eclipse Public License either version 1.0 or any later version.
 
