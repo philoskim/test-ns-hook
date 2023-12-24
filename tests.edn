@@ -14,5 +14,4 @@
  :kaocha.plugin.capture-output/capture-output? false,
  :kaocha/reporter [kaocha.report/dots
                    ;kaocha.report/documentation
-                   ;kaocha.report.progress/report
-                   ]}
+                   #_kaocha.report.progress/report]}

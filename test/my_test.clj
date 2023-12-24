@@ -13,7 +13,7 @@
   (testing "test-a"
     (is (/ 10 0) 10)
     (is (= 1 1))
-    (is (= (+ 2 3) 5)) ))
+    (is (= (+ 2 3) 4)) ))
 
 (deftest test-b
   (testing "test-b"

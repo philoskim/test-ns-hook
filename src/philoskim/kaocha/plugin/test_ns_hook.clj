@@ -1,16 +1,10 @@
 (ns philoskim.kaocha.plugin.test-ns-hook
-  (:require [clojure.string :as str]
-            [clojure.test :as t]
-            [kaocha.plugin :as plugin]
-            [kaocha.report :as report]
-            [kaocha.core-ext :as kce]
-            [kaocha.output :as output]
-            [kaocha.stacktrace :as stacktrace]
-            [kaocha.hierarchy :as hierarchy]
-            [kaocha.history :as history]))
+  (:require [kaocha.plugin :as plugin]
+            [kaocha.report :as report]))
 
 (use 'debux.core)
 
+;;; plugin test-ns-hook
 (defn- has-test-ns-hook? [ns]
   (some (fn [[symbol var]]
           (= symbol 'test-ns-hook))
@@ -36,7 +30,7 @@
      :kaocha.var/name (symbol ns-str hook-str)
      :kaocha.var/var hook-var
      :kaocha.var/test (:test hook-meta)
-     :kaocha.testable/wrap []}))
+     :kaocha.testable/wrap [] }))
 
 (defn- update-test-suite
   [{ns :kaocha.ns/ns :as test-suite}]
@@ -51,80 +45,32 @@
           (fn [test-suites]
             (map update-test-suite test-suites) )))
 
-
 (plugin/defplugin :philoskim.kaocha.plugin/test-ns-hook
   (pre-run [config]
-           (update config :kaocha.test-plan/tests
-                   (fn [test-ids]
-                     (map update-test-id test-ids) ))))
+    (update config :kaocha.test-plan/tests
+            (fn [test-ids]
+              (map update-test-id test-ids) ))))
 
-(defmethod report/fail-summary :error-default
-  [{:keys [testing-contexts] :as m}]
-  (println (str "\n" (output/colored :red "ERROR") " in") (report/testing-vars-str m))
-  (when (seq testing-contexts)
-    (println (str/join " " (reverse testing-contexts))))
-  (when-let [message (:message m)]
-    (println message))
-  (if-let [expr (::printed-expression m)]
-    (print expr)
-    (when-let [actual (:actual m)]
-      (print "Exception: ")
-      (if (kce/throwable? actual)
-        (stacktrace/print-cause-trace actual t/*stack-trace-depth*)
-        (prn actual))))
-  (report/print-output m))
 
+;;; outputs
+(def orig-dots* (get-method report/dots* :error))
+(defmethod report/dots* :error
+  [{:keys [message file] :as m}]
+  (when-not (and (= message "Uncaught exception, not in assertion.")
+                 (= file "support.clj"))
+    (orig-dots* m) ))
+
+(def orig-fail-summary (get-method report/fail-summary :error))
 (defmethod report/fail-summary :error
   [{:keys [message file testing-vars] :as m}]
   (when-not (and (= message "Uncaught exception, not in assertion.")
                  (= file "support.clj")
                  (re-find #"test-ns-hook$" (-> testing-vars last str)))
-    (report/fail-summary (assoc m :type :error-default)) ))
+    (orig-fail-summary m) ))
 
-
-(defmethod report/dots* :error-default [_]
-  (t/with-test-out
-    (print (output/colored :red "E"))
-    (flush)))
-
-(defmethod report/dots* :error
-  [{:keys [message file] :as m}]
-  (when-not (and (= message "Uncaught exception, not in assertion.")
-                 (= file "support.clj"))
-    (report/dots* (assoc m :type :error-default)) ))
-
-(defmethod report/result :summary-default [m]
-  (let [history @history/*history*]
-    (t/with-test-out
-      (let [failures (filter hierarchy/fail-type? history)]
-        (doseq [{:keys [testing-contexts testing-vars] :as m} failures]
-          (binding [t/*testing-contexts* testing-contexts
-                    t/*testing-vars* testing-vars]
-            (report/fail-summary m))))
-
-      (doseq [deferred (filter hierarchy/deferred? history)]
-        (report/clojure-test-report deferred))
-
-      (let [{:keys [test pass fail error pending] :or {pass 0 fail 0 error 0 pending 0}} m
-            failed? (pos-int? (+ fail error))
-            pending? (pos-int? pending)]
-        (println (output/colored (if failed? :red (if pending? :yellow :green))
-                                 (str test " tests, "
-                                      (+ pass fail error) " assertions, "
-                                      (when (pos-int? error)
-                                        (str error " errors, "))
-                                      (when pending?
-                                        (str pending " pending, "))
-                                      fail " failures."))))
-
-      (when-let [pending (seq (filter hierarchy/pending? history))]
-        (println)
-        (doseq [m pending]
-          (println (output/colored :yellow
-                                   (str "PENDING " (report/testing-vars-str m)))))))))
-
+(def orig-result (get-method report/result :summary))
 (defmethod report/result :summary [m]
-  (report/result (-> m
-                     (update :error dec)
-                     (assoc :type :summary-default))))
-
+  (if (and (get-in m [:kaocha/test-plan :kaocha/fail-fast?])
+           (pos-int? (:error m)))
+    (orig-result (update m :error dec))
+    (orig-result m) ))
