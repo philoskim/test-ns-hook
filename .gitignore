@@ -2,13 +2,13 @@
 /classes
 /.lein-*
 /.nrepl-port
+pom.*
+.DS_Store
 
 .clj-kondo/*
 !.clj-kondo/config.edn
 .lsp/*
 !.lsp/config.edn
-
-.DS_Store
 
 *~
 *#
