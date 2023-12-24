@@ -11,8 +11,9 @@
 
 (deftest test-a
   (testing "test-a"
+    (is (/ 10 0) 10)
     (is (= 1 1))
-    (is (= (+ 2 2) 5)) ))
+    (is (= (+ 2 3) 5)) ))
 
 (deftest test-b
   (testing "test-b"
