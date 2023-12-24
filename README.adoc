@@ -11,7 +11,7 @@ To include this plugin for Kaocha in your project, simply add the following to y
 
 [listing]
 ----
-[org.clojars.philoskim/test-ns-hook "0.2.0"]
+[org.clojars.philoskim/test-ns-hook "0.2.1"]
 ----
 
 
@@ -23,7 +23,7 @@ To include this plugin for Kaocha in your project, simply add the following to y
 (defproject my-project "0.1.0"
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [lambdaisland/kaocha "1.87.1366"]
-                 [org.clojars.philoskim/test-ns-hook "0.2.0"]]
+                 [org.clojars.philoskim/test-ns-hook "0.2.1"]]
   :aliases {"unit-test" ["run" "-m" "kaocha.runner" ":unit"]})
 ----
 

@@ -1,4 +1,4 @@
-(defproject org.clojars.philoskim/test-ns-hook "0.2.0"
+(defproject org.clojars.philoskim/test-ns-hook "0.2.1"
   :description "A Kaocha plugin for test-ns-hook feature in cloure.test"
   :url "https://github.com/philoskim/test-ns-hook"
   :license {:name "Eclipse Public License - v 1.0"

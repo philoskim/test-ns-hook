@@ -2,7 +2,7 @@
   (:require [kaocha.plugin :as plugin]
             [kaocha.report :as report]))
 
-(use 'debux.core)
+;(use 'debux.core)
 
 ;;; plugin test-ns-hook
 (defn- has-test-ns-hook? [ns]
