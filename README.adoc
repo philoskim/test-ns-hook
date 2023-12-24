@@ -1,12 +1,12 @@
 = Kaocha plugin `test-ns-hook`
 :sectnums:
 
-* Kaocha plugin `test-ns-hook` for `test-ns-hook` feature in clojure.test`
+* This plugin `test-ns-hook` for Kaocha mimics the `test-ns-hook` feature in clojure.test
 
 
 == How to install
 
-To include this plugin for kaocha in your project, simply add the following to your
+To include this plugin for Kaocha in your project, simply add the following to your
 `project.clj` dependencies:
 
 [listing]
@@ -21,7 +21,7 @@ To include this plugin for kaocha in your project, simply add the following to y
 ----
 ;; project.clj for lein
 (defproject my-project "0.1.0"
-  :dependencies [[org.clojure/clojure "1.11.1" :scope "provided"]
+  :dependencies [[org.clojure/clojure "1.11.1"]
                  [lambdaisland/kaocha "1.87.1366"]
                  [philoskim/test-ns-hook "0.1.0"]]
   :aliases {"unit-test" ["run" "-m" "kaocha.runner" ":unit"]})
@@ -54,16 +54,6 @@ To include this plugin for kaocha in your project, simply add the following to y
 ;; test/my-test
 (ns my-test
   (:require [clojure.test :refer :all]))
-
-(use 'debux.core)
-
-(defn my-test-fixture [f]
-  (print "start fixture")
-  (f)
-  (print "end fixture"))
-
-(use-fixtures :once my-test-fixture)
-
 
 (deftest test-a
   (testing "test-a"
