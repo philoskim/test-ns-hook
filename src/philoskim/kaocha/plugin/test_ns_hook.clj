@@ -52,15 +52,17 @@
               (map update-test-id test-ids) ))))
 
 
-;;; outputs
-(def orig-dots* (get-method report/dots* :error))
+;;; To remove the redundant output errors when the `:fail-fast?` option is `true`
+(def ^:private orig-dots*
+  (get-method report/dots* :error))
 (defmethod report/dots* :error
   [{:keys [message file] :as m}]
   (when-not (and (= message "Uncaught exception, not in assertion.")
                  (= file "support.clj"))
     (orig-dots* m) ))
 
-(def orig-fail-summary (get-method report/fail-summary :error))
+(def ^:private orig-fail-summary
+  (get-method report/fail-summary :error))
 (defmethod report/fail-summary :error
   [{:keys [message file testing-vars] :as m}]
   (when-not (and (= message "Uncaught exception, not in assertion.")
@@ -68,9 +70,11 @@
                  (re-find #"test-ns-hook$" (-> testing-vars last str)))
     (orig-fail-summary m) ))
 
-(def orig-result (get-method report/result :summary))
+(def ^:private orig-result
+  (get-method report/result :summary))
 (defmethod report/result :summary [m]
   (if (and (get-in m [:kaocha/test-plan :kaocha/fail-fast?])
            (pos-int? (:error m)))
     (orig-result (update m :error dec))
     (orig-result m) ))
+

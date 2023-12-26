@@ -1,10 +1,26 @@
 = Kaocha plugin `test-ns-hook`
 :sectnums:
 
-* This plugin `test-ns-hook` for Kaocha mimics the `test-ns-hook` feature in clojure.test
+* This plugin `test-ns-hook` for link:https://github.com/lambdaisland/kaocha[Kaocha]
+  mimics the `test-ns-hook` feature in
+  link:https://clojure.github.io/clojure/clojure.test-api.html[clojure.test].
+** Refer to link:https://github.com/lambdaisland/kaocha/issues/29[the related discussion].
+
+* So the behaviors of this plugin are exactly the same as those of clojure.test.
+** If `test-ns-hook` function is defined in a test file, all the other ``deftest``s are
+   ignored and only `test-ns-hook` function is called. So the functions defined by
+   ``deftest``s can be called orderly inside the `test-ns-hook` function. (Read the
+   `RUNNING TESTS` section in
+   link:https://clojure.github.io/clojure/clojure.test-api.html[clojure.test].)
+** If `test-ns-hook` function is defined in a test file, all the fixtures are
+   not called so not run automatically. You have to call the fixture functions directly
+   inside the `test-ns-hook` function. (Read the `FIXTURES` section in
+   link:https://clojure.github.io/clojure/clojure.test-api.html[clojure.test].)
 
 
 == How to install
+
+* Repository: link:https://clojars.org/org.clojars.philoskim/test-ns-hook[]
 
 To include this plugin for Kaocha in your project, simply add the following to your
 `project.clj` dependencies:
@@ -17,9 +33,10 @@ To include this plugin for Kaocha in your project, simply add the following to y
 
 == Use example
 
+=== project.clj for lein
+
 [listing]
 ----
-;; project.clj for lein
 (defproject my-project "0.1.0"
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [lambdaisland/kaocha "1.87.1366"]
@@ -28,9 +45,10 @@ To include this plugin for Kaocha in your project, simply add the following to y
 ----
 
 
+=== tests.edn for Kaocha
+
 [listing]
 ----
-;; tests.edn for Kaocha
 {:kaocha/tests
  [{:kaocha.testable/type :kaocha.type/clojure.test,
    :kaocha.testable/id :unit,
@@ -43,15 +61,16 @@ To include this plugin for Kaocha in your project, simply add the following to y
  :kaocha/cli-options {:config-file "tests.edn", :print-config true},
  :kaocha.plugin.randomize/randomize? false,
  :kaocha/plugins [:kaocha.plugin/filter
-                  :philoskim.kaocha.plugin/test-ns-hook],
+                  :philoskim.kaocha.plugin/test-ns-hook],  ; <-- here
  :kaocha.plugin.capture-output/capture-output? false,
  :kaocha/reporter [kaocha.report/dots]}
 ----
 
+=== a test sample
 
 [listing]
 ----
-;; test/my-test
+;; test/my_test.clj
 (ns my-test
   (:require [clojure.test :refer :all]))
 
@@ -71,6 +90,8 @@ To include this plugin for Kaocha in your project, simply add the following to y
 ----
 
 
+=== Running Kaocha
+
 [listing]
 ----
 $ lein unit-test
@@ -82,6 +103,132 @@ Expected:
   4
 Actual:
   -4 +5
+1 tests, 4 assertions, 1 failures.
+----
+
+
+== Limitations
+
+* This plugin is not perfect but I think it is better than nothing. You can use it
+  tentatively, until the Kaocha team implements this feature.
+
+* This plugin has the following limitations in printed outputs but I think this
+  limitations are not what I can cover but the Kaocha team has to solve.
+
+** When `:fail-fast? false` and `:kaocha/reporter [kaocha.report/dots]`
++
+what I expected is
++
+[listing]
+----
+$ lein unit-test
+[(.F)(..)]   ; <-- Here
+
+FAIL in my-test/test-a (my_test.clj:8)   ; <-- Here
+test-a
+Expected:
+  5
+Actual:
+  -5 +4
+1 tests, 4 assertions, 1 failures.
+----
++
+but the reality is
++
+[listing]
+----
+$ lein unit-test
+[(.F..)]   ; <-- Here
+
+FAIL in my-test/test-ns-hook (my_test.clj:8)   ; <-- Here
+test-a
+Expected:
+  5
+Actual:
+  -5 +4
+1 tests, 4 assertions, 1 failures.
+----
+
+** When `:kaocha/reporter [kaocha.report/documentation]`
++
+what I expected is
++
+[listing]
+----
+$ lein unit-test
+--- unit (clojure.test) ---------------------------
+my-test
+  test-ns-hook
+    test-a          ; <-- Here
+      test-a FAIL   ;
+    test-b          ;
+      test-b        ;
+
+
+FAIL in my-test/test-a (my_test.clj:8)   ; <-- Here
+test-a
+Expected:
+  5
+Actual:
+  -5 +4
+1 tests, 4 assertions, 1 failures.
+----
++
+but the reality is
++
+[listing]
+----
+$ lein unit-test
+--- unit (clojure.test) ---------------------------
+my-test
+  test-ns-hook
+  test-a          ; <-- Here, not indented
+    test-a FAIL   ;
+  test-b          ;
+    test-b        ;
+
+
+FAIL in my-test/test-ns-hook (my_test.clj:8)   ; <-- Here
+test-a
+Expected:
+  5
+Actual:
+  -5 +4
+1 tests, 4 assertions, 1 failures.
+----
+
+** When `:kaocha/reporter [kaocha.report.progress/report]`
++
+what I expected is
++
+[listing]
+----
+$ lein unit-test
+unit:   100% [======================================================] 2/2   ; <-- Here
+
+FAIL in my-test/test-a (my_test.clj:8)
+test-a
+Expected:
+  5
+Actual:
+  -5 +4
+1 tests, 4 assertions, 1 failures.
+----
++
+but the reality is
++
+[listing]
+----
+$ lein unit-test
+unit:   300% [======================================================        ; <-- Here
+unit:   300% [======================================================] 3/1   ; <-- Here
+
+FAIL in my-test/test-ns-hook (my_test.clj:8)   ; <-- Here
+test-a
+Expected:
+  5
+Actual:
+  -5 +4
 1 tests, 4 assertions, 1 failures.
 ----
 
