@@ -1,6 +1,11 @@
 = Kaocha plugin `test-ns-hook`
 :sectnums:
 
+This project is __deprecated__ now and moved to
+link:https://github.com/philoskim/kaocha-test-ns-hook[]
+
+---
+
 * This plugin `test-ns-hook` for link:https://github.com/lambdaisland/kaocha[Kaocha]
   mimics the `test-ns-hook` feature in
   link:https://clojure.github.io/clojure/clojure.test-api.html[clojure.test].
